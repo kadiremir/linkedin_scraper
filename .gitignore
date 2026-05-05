@@ -1,0 +1,7 @@
+.browser-profile/
+.pytest_cache/
+pytest-cache-files-*/
+__pycache__/
+*.py[cod]
+jobs.sqlite3
+*.sqlite3

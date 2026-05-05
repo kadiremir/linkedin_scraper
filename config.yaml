@@ -1,0 +1,20 @@
+countries:
+#  - Austria
+  - Czechia
+
+job_titles:
+#  - IT Consultant
+  - DevOps Engineer
+  - Software Engineer
+
+# Optional. Remove or leave commented to keep searching until LinkedIn stops returning jobs.
+# max_pages: 2
+
+# Optional. false keeps reposted jobs; true skips cards labeled "Reposted".
+filter_reposted: false
+
+# Options: last_24_hours, last_7_days, last_month
+posted_within: last_24_hours
+
+# false opens Chrome visibly; true runs without a browser window after you are already logged in.
+headless: true

@@ -1,0 +1,12 @@
+countries:
+  - Czechia
+  - Germany
+
+job_titles:
+  - software engineer
+  - backend developer
+
+max_pages: 3
+filter_reposted: true
+posted_within: last_7_days
+headless: true
