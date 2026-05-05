@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
@@ -21,6 +21,7 @@ class AppConfig:
     filter_reposted: bool = False
     posted_within: str = DEFAULT_POSTED_WITHIN
     headless: bool = False
+    exclude_title_words: list[str] = field(default_factory=list)
 
     @property
     def search_targets(self) -> list[SearchTarget]:
@@ -49,6 +50,7 @@ def load_config(path: Path) -> AppConfig:
     filter_reposted = validate_optional_bool(data.get("filter_reposted"), "filter_reposted")
     posted_within = validate_posted_within(data.get("posted_within"))
     headless = validate_optional_bool(data.get("headless"), "headless")
+    exclude_title_words = validate_optional_string_list(data.get("exclude_title_words"), "exclude_title_words")
     return AppConfig(
         countries=countries,
         job_titles=job_titles,
@@ -56,7 +58,14 @@ def load_config(path: Path) -> AppConfig:
         filter_reposted=filter_reposted,
         posted_within=posted_within,
         headless=headless,
+        exclude_title_words=exclude_title_words,
     )
+
+
+def validate_optional_string_list(value: Any, field_name: str) -> list[str]:
+    if value is None:
+        return []
+    return validate_string_list(value, field_name)
 
 
 def validate_string_list(value: Any, field_name: str) -> list[str]:

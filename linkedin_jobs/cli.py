@@ -25,6 +25,7 @@ def main(argv: list[str] | None = None) -> int:
         posted_within_seconds=posted_within_seconds(config.posted_within),
         headless=headless,
         page_pause_seconds=args.page_pause_seconds,
+        exclude_title_words=config.exclude_title_words,
     )
 
     total_jobs = sum(len(jobs) for _, jobs in search_results)

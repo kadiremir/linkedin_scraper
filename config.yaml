@@ -11,10 +11,16 @@ job_titles:
 # max_pages: 2
 
 # Optional. false keeps reposted jobs; true skips cards labeled "Reposted".
-filter_reposted: false
+filter_reposted: true
 
 # Options: last_24_hours, last_7_days, last_month
 posted_within: last_24_hours
 
 # false opens Chrome visibly; true runs without a browser window after you are already logged in.
 headless: true
+
+# Optional. Jobs whose title contains any of these words (case-insensitive) are skipped.
+exclude_title_words:
+   - Intern
+#   - Lead
+#   - Manager

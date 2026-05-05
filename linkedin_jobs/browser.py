@@ -103,6 +103,7 @@ def collect_jobs_for_targets_from_linkedin(
     posted_within_seconds: int,
     headless: bool,
     page_pause_seconds: float,
+    exclude_title_words: list[str] | None = None,
 ) -> list[tuple[SearchTarget, list[JobPosting]]]:
     try:
         from playwright.async_api import Error as PlaywrightError
@@ -126,6 +127,7 @@ def collect_jobs_for_targets_from_linkedin(
             posted_within_seconds=posted_within_seconds,
             headless=headless,
             page_pause_seconds=page_pause_seconds,
+            exclude_title_words=exclude_title_words or [],
             timeout_error_type=PlaywrightTimeoutError,
             playwright_error_type=PlaywrightError,
         )
@@ -143,6 +145,7 @@ async def collect_target_jobs_with_persistent_context(
     posted_within_seconds: int,
     headless: bool,
     page_pause_seconds: float,
+    exclude_title_words: list[str],
     timeout_error_type,
     playwright_error_type,
 ) -> list[tuple[SearchTarget, list[JobPosting]]]:
@@ -184,6 +187,7 @@ async def collect_target_jobs_with_persistent_context(
                     filter_reposted=filter_reposted,
                     posted_within_seconds=posted_within_seconds,
                     page_pause_seconds=page_pause_seconds,
+                    exclude_title_words=exclude_title_words,
                     timeout_error_type=timeout_error_type,
                 )
                 results.append((target, jobs))
@@ -285,6 +289,7 @@ async def scrape_search_results(
     filter_reposted: bool,
     posted_within_seconds: int,
     page_pause_seconds: float,
+    exclude_title_words: list[str],
     timeout_error_type,
 ) -> list[JobPosting]:
     links_by_id: dict[str, JobLink] = {}
@@ -340,6 +345,7 @@ async def scrape_search_results(
         job_links=list(links_by_id.values()),
         filter_reposted=filter_reposted,
         page_pause_seconds=page_pause_seconds,
+        exclude_title_words=exclude_title_words,
         timeout_error_type=timeout_error_type,
     )
 
@@ -349,6 +355,7 @@ async def scrape_job_details(
     job_links: list[JobLink],
     filter_reposted: bool,
     page_pause_seconds: float,
+    exclude_title_words: list[str],
     timeout_error_type,
 ) -> list[JobPosting]:
     if not job_links:
@@ -361,6 +368,7 @@ async def scrape_job_details(
             page=page,
             job_link=job_link,
             filter_reposted=filter_reposted,
+            exclude_title_words=exclude_title_words,
             timeout_error_type=timeout_error_type,
         )
         if posting is not None:
@@ -398,7 +406,7 @@ async def extract_job_links_from_page(page) -> list[JobLink]:
     return await extract_job_links_from_links(page)
 
 
-async def scrape_job_detail(page, job_link: JobLink, filter_reposted: bool, timeout_error_type) -> JobPosting | None:
+async def scrape_job_detail(page, job_link: JobLink, filter_reposted: bool, exclude_title_words: list[str], timeout_error_type) -> JobPosting | None:
     await navigate(page, job_link.url, timeout_error_type)
     await wait_for_detail_page_loaded(page, timeout_error_type)
     try:
@@ -415,6 +423,10 @@ async def scrape_job_detail(page, job_link: JobLink, filter_reposted: bool, time
     company = parsed_details.company or await extract_detail_company(page, detail_text)
     selected_title = parsed_details.title or await extract_detail_title_from_page(page)
     title = extract_detail_title(selected_title, detail_text, company=company)
+    if title and exclude_title_words:
+        title_lower = title.lower()
+        if any(word.lower() in title_lower for word in exclude_title_words):
+            return None
     location = parsed_details.location or extract_location(detail_text)
     workplace_type = parsed_details.workplace_type or extract_workplace_type(detail_text)
 
