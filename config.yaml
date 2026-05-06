@@ -34,4 +34,5 @@ exclude_company_names:
 
 # Optional. Path to a YAML file listing jobs you've applied to (excluded from results).
 # Defaults to applied_jobs.yaml in the current directory. Missing file is silently ignored.
+# Only uncomment this line if you want to use a different file path.
 # applied_jobs_file: applied_jobs.yaml
