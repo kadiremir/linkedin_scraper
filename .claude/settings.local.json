@@ -3,7 +3,12 @@
     "allow": [
       "Bash(Get-ChildItem -Path \"C:\\\\Users\\\\kadir.emir\\\\PycharmProjects\\\\linkedin-scraper\" -Recurse -Force)",
       "Bash(Select-Object FullName)",
-      "Bash(Sort-Object FullName)"
+      "Bash(Sort-Object FullName)",
+      "Bash(.venv\\\\Scripts\\\\python.exe *)",
+      "PowerShell(.venv\\\\Scripts\\\\python.exe -m pytest)",
+      "PowerShell(python -m pytest)",
+      "PowerShell(pytest *)",
+      "PowerShell(pip install *)"
     ]
   }
 }

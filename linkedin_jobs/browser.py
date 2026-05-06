@@ -105,7 +105,7 @@ def collect_jobs_for_targets_from_linkedin(
     page_pause_seconds: float,
     exclude_title_words: list[str] | None = None,
     exclude_company_names: list[str] | None = None,
-) -> list[tuple[SearchTarget, list[JobPosting]]]:
+) -> list[tuple[str, list[JobPosting]]]:
     try:
         from playwright.async_api import Error as PlaywrightError
         from playwright.async_api import TimeoutError as PlaywrightTimeoutError
@@ -151,7 +151,7 @@ async def collect_target_jobs_with_persistent_context(
     exclude_company_names: list[str],
     timeout_error_type,
     playwright_error_type,
-) -> list[tuple[SearchTarget, list[JobPosting]]]:
+) -> list[tuple[str, list[JobPosting]]]:
     launch_args = []
     if chrome_profile_directory:
         launch_args.append(f"--profile-directory={chrome_profile_directory}")
@@ -179,22 +179,40 @@ async def collect_target_jobs_with_persistent_context(
                 input()
             await ensure_logged_in(page, context, timeout_error_type, headless=headless)
 
-            results: list[tuple[SearchTarget, list[JobPosting]]] = []
+            countries_order: list[str] = []
+            targets_by_country: dict[str, list[SearchTarget]] = {}
             for target in targets:
-                print(f"Searching '{target.job_title}' in {target.country}")
-                jobs = await scrape_search_results(
+                if target.country not in targets_by_country:
+                    countries_order.append(target.country)
+                    targets_by_country[target.country] = []
+                targets_by_country[target.country].append(target)
+
+            results: list[tuple[str, list[JobPosting]]] = []
+            for country in countries_order:
+                links_by_id: dict[str, JobLink] = {}
+                for target in targets_by_country[country]:
+                    print(f"Searching '{target.job_title}' roles in {country}")
+                    title_links = await collect_job_links(
+                        page=page,
+                        keywords=target.job_title,
+                        location=country,
+                        max_pages=max_pages,
+                        posted_within_seconds=posted_within_seconds,
+                        page_pause_seconds=page_pause_seconds,
+                        timeout_error_type=timeout_error_type,
+                    )
+                    for job_id, job_link in title_links.items():
+                        links_by_id.setdefault(job_id, job_link)
+                jobs = await scrape_job_details(
                     page=page,
-                    keywords=target.job_title,
-                    location=target.country,
-                    max_pages=max_pages,
+                    job_links=list(links_by_id.values()),
                     filter_reposted=filter_reposted,
-                    posted_within_seconds=posted_within_seconds,
                     page_pause_seconds=page_pause_seconds,
                     exclude_title_words=exclude_title_words,
                     exclude_company_names=exclude_company_names,
                     timeout_error_type=timeout_error_type,
                 )
-                results.append((target, jobs))
+                results.append((country, jobs))
             return results
         finally:
             await context.close()
@@ -285,18 +303,15 @@ async def has_linkedin_session(context) -> bool:
     return any(cookie["name"] == "li_at" for cookie in cookies)
 
 
-async def scrape_search_results(
+async def collect_job_links(
     page,
     keywords: str,
     location: str,
     max_pages: int | None,
-    filter_reposted: bool,
     posted_within_seconds: int,
     page_pause_seconds: float,
-    exclude_title_words: list[str],
-    exclude_company_names: list[str],
     timeout_error_type,
-) -> list[JobPosting]:
+) -> dict[str, JobLink]:
     links_by_id: dict[str, JobLink] = {}
     empty_pages = 0
 
@@ -345,15 +360,7 @@ async def scrape_search_results(
 
         await asyncio.sleep(page_pause_seconds)
 
-    return await scrape_job_details(
-        page=page,
-        job_links=list(links_by_id.values()),
-        filter_reposted=filter_reposted,
-        page_pause_seconds=page_pause_seconds,
-        exclude_title_words=exclude_title_words,
-        exclude_company_names=exclude_company_names,
-        timeout_error_type=timeout_error_type,
-    )
+    return links_by_id
 
 
 async def scrape_job_details(
@@ -368,7 +375,7 @@ async def scrape_job_details(
     if not job_links:
         return []
 
-    print(f"Opening {len(job_links)} job detail pages one at a time.")
+    print(f"Opening {len(job_links)} job pages and retrieve the details.")
     postings: list[JobPosting] = []
     for job_link in job_links:
         posting = await scrape_job_detail(

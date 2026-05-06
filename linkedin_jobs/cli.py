@@ -3,7 +3,7 @@ from pathlib import Path
 
 from linkedin_jobs.browser import collect_jobs_for_targets_from_linkedin
 from linkedin_jobs.config import AppConfig, load_config, posted_within_seconds
-from linkedin_jobs.models import JobPosting, SearchTarget
+from linkedin_jobs.models import JobPosting
 from linkedin_jobs.profiles import resolve_browser_profile
 
 
@@ -29,28 +29,32 @@ def main(argv: list[str] | None = None) -> int:
         exclude_company_names=config.exclude_company_names,
     )
 
+    titles_by_country: dict[str, list[str]] = {}
+    for target in config.search_targets:
+        titles_by_country.setdefault(target.country, []).append(target.job_title)
+
     total_jobs = sum(len(jobs) for _, jobs in search_results)
     if total_jobs == 0:
         print("No jobs found.")
         return 0
 
-    print_all_job_details(search_results)
+    print_all_job_details(search_results, titles_by_country)
     print(f"Total jobs found: {total_jobs}")
     return 0
 
 
-def print_all_job_details(search_results: list[tuple[SearchTarget, list[JobPosting]]]) -> None:
-    print("Job details found:")
-    for target, jobs in search_results:
-        print_job_group(target, jobs)
+def print_all_job_details(
+    search_results: list[tuple[str, list[JobPosting]]],
+    titles_by_country: dict[str, list[str]],
+) -> None:
+    for country, jobs in search_results:
+        print_job_group(country, titles_by_country.get(country, []), jobs)
 
 
-def print_job_group(target: SearchTarget, jobs: list[JobPosting]) -> None:
-    if not jobs:
-        print(f"No jobs for '{target.job_title}' in {target.country}.")
-        return
-
-    print(f"{target.country} / {target.job_title}: {len(jobs)}")
+def print_job_group(country: str, job_titles: list[str], jobs: list[JobPosting]) -> None:
+    roles = ", ".join(job_titles) if job_titles else "unknown"
+    print(f"Searched for the roles: {roles} at: {country}")
+    print(f"Found: {len(jobs)}")
     for index, job in enumerate(jobs, start=1):
         print(f"{index}. {format_job_summary(job)}")
         print(f"   link: {job.url}")

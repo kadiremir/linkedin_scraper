@@ -1,11 +1,13 @@
 countries:
-#  - Austria
-  - Czechia
+  - Austria
+#  - Czechia
 
 job_titles:
 #  - IT Consultant
   - DevOps Engineer
   - Software Engineer
+  - Python Engineer
+  - Python Developer
 
 # Optional. Remove or leave commented to keep searching until LinkedIn stops returning jobs.
 # max_pages: 2
@@ -27,5 +29,5 @@ exclude_title_words:
 
 # Optional. Jobs from companies whose name contains any of these strings (case-insensitive) are skipped.
 exclude_company_names:
-   - Infosys
+   - Pure Storage
 #   - Recruiting
