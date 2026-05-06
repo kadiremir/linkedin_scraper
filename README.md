@@ -45,6 +45,16 @@ posted_within: last_24_hours
 
 # false opens Chrome visibly; true runs without a browser window after login is already saved.
 headless: false
+
+# Optional. Jobs whose title contains any of these words (case-insensitive) are skipped.
+exclude_title_words:
+  - Intern
+  - Senior
+
+# Optional. Jobs from companies whose name contains any of these strings (case-insensitive) are skipped.
+exclude_company_names:
+  - Staffing
+  - Recruiting
 ```
 
 The app searches every job title in every country and prints the parsed results at the end of the run.
@@ -84,6 +94,10 @@ Set `filter_reposted: true` in `config.yaml` to skip LinkedIn cards labeled `Rep
 Set `posted_within` to control LinkedIn's posted-date filter. Default is `last_24_hours`; supported values are `last_24_hours`, `last_7_days`, and `last_month`.
 
 Set `headless: true` only after you have already logged in with the same Chrome profile. Headless mode cannot complete LinkedIn login, MFA, or CAPTCHA prompts.
+
+Set `exclude_title_words` to a list of words to skip jobs whose title contains any of them (case-insensitive substring match). Useful for filtering out seniority levels or roles you are not interested in.
+
+Set `exclude_company_names` to a list of strings to skip jobs from companies whose name contains any of them (case-insensitive substring match). Useful for filtering out staffing agencies or specific employers.
 
 If Chrome opens the correct profile but the tab stays empty, try:
 
