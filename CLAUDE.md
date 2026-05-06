@@ -47,6 +47,8 @@ main.py → cli.main() → collect_jobs_for_targets_from_linkedin()
 - `linkedin_jobs/profiles.py` — Resolves which Chrome profile path to use (dedicated automation profile, Windows default, or custom).
 - `linkedin_jobs/cli.py` — Argument parsing and output formatting.
 
+`main_2.py` is an abandoned prototype that used `requests`+`BeautifulSoup` against LinkedIn's guest API — it is not part of the active flow.
+
 ## Configuration
 
 `config.yaml` controls search targets and behavior:
@@ -58,7 +60,8 @@ max_pages: 10                    # optional; scrapes until no new jobs if omitte
 filter_reposted: true
 posted_within: last_24_hours     # last_24_hours | last_7_days | last_month
 headless: true
-exclude_title_words: [Intern]    # optional; filters out jobs whose title contains these words
+exclude_title_words: [Intern]    # optional; skips jobs whose title contains any of these words (case-insensitive)
+exclude_company_names: [Infosys] # optional; skips jobs whose company name contains any of these strings (case-insensitive)
 ```
 
 ## HTML Parsing Notes
