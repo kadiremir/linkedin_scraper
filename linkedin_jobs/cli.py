@@ -45,6 +45,7 @@ def main(argv: list[str] | None = None) -> int:
 
     print_all_job_details(search_results, titles_by_country)
     print(f"Total jobs found: {total_jobs}")
+    write_jobs_to_excel(search_results, Path("output.xlsx"))
     return 0
 
 
@@ -68,6 +69,44 @@ def print_job_group(country: str, job_titles: list[str], jobs: list[JobPosting])
         print(f"   location: {job.location or ''}")
         print(f"   workplace_type: {job.workplace_type or ''}")
         print(f"   posted_at: {job.posted_at or ''}")
+
+
+def write_jobs_to_excel(search_results: list[tuple[str, list[JobPosting]]], path: Path) -> None:
+    from openpyxl import Workbook
+    from openpyxl.styles import Font
+
+    wb = Workbook()
+    ws = wb.active
+    ws.title = "Jobs"
+
+    headers = ["URL", "Country", "Company", "Title", "Location", "Workplace Type", "Posted At"]
+    ws.append(headers)
+    for cell in ws[1]:
+        cell.font = Font(bold=True)
+
+    link_font = Font(color="0563C1", underline="single")
+
+    for country, jobs in search_results:
+        for job in jobs:
+            ws.append([
+                job.url,
+                country,
+                job.company or "",
+                job.title or "",
+                job.location or "",
+                job.workplace_type or "",
+                job.posted_at or "",
+            ])
+            url_cell = ws.cell(row=ws.max_row, column=1)
+            url_cell.hyperlink = job.url
+            url_cell.font = link_font
+
+    for col in ws.columns:
+        max_len = max(len(str(cell.value or "")) for cell in col)
+        ws.column_dimensions[col[0].column_letter].width = min(max_len + 2, 60)
+
+    wb.save(path)
+    print(f"Results saved to {path}")
 
 
 def format_job_summary(job: JobPosting) -> str:

@@ -3,11 +3,17 @@ countries:
   - Czechia
 
 job_titles:
-#  - IT Consultant
   - DevOps Engineer
   - Software Engineer
   - Python Engineer
   - Python Developer
+
+#job_titles:
+#  - technology consultant
+#  - strategy consultant
+#  - management consultant
+#  - solution consultant
+#  - product owner
 
 # Optional. Remove or leave commented to keep searching until LinkedIn stops returning jobs.
 # max_pages: 2
@@ -16,7 +22,7 @@ job_titles:
 filter_reposted: true
 
 # Options: last_24_hours, last_7_days, last_month
-posted_within: last_24_hours
+posted_within: last_7_days
 
 # false opens Chrome visibly; true runs without a browser window after you are already logged in.
 headless: true

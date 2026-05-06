@@ -115,6 +115,8 @@ urls_applied:
 
 The scraper reads this file on every run and silently skips matching jobs before opening any pages. The file is gitignored. Use `applied_jobs_file` in `config.yaml` to point to a different path.
 
+After each run, results are written to `output.xlsx` in the project root. The file is overwritten on every run and contains the following columns: URL, Country, Company, Title, Location, Workplace Type, Posted At.
+
 If Chrome opens the correct profile but the tab stays empty, try:
 
 ```powershell

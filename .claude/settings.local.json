@@ -8,7 +8,11 @@
       "PowerShell(.venv\\\\Scripts\\\\python.exe -m pytest)",
       "PowerShell(python -m pytest)",
       "PowerShell(pytest *)",
-      "PowerShell(pip install *)"
+      "PowerShell(pip install *)",
+      "Bash(Get-ChildItem *)",
+      "Bash(python -m pytest --tb=short -q)",
+      "Bash(git restore *)",
+      "Bash(git add *)"
     ]
   }
 }
