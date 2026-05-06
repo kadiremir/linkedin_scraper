@@ -23,6 +23,7 @@ class AppConfig:
     headless: bool = False
     exclude_title_words: list[str] = field(default_factory=list)
     exclude_company_names: list[str] = field(default_factory=list)
+    applied_jobs_file: Path = field(default_factory=lambda: Path("applied_jobs.yaml"))
 
     @property
     def search_targets(self) -> list[SearchTarget]:
@@ -53,6 +54,7 @@ def load_config(path: Path) -> AppConfig:
     headless = validate_optional_bool(data.get("headless"), "headless")
     exclude_title_words = validate_optional_string_list(data.get("exclude_title_words"), "exclude_title_words")
     exclude_company_names = validate_optional_string_list(data.get("exclude_company_names"), "exclude_company_names")
+    applied_jobs_file = validate_optional_path(data.get("applied_jobs_file"), "applied_jobs_file")
     return AppConfig(
         countries=countries,
         job_titles=job_titles,
@@ -62,6 +64,7 @@ def load_config(path: Path) -> AppConfig:
         headless=headless,
         exclude_title_words=exclude_title_words,
         exclude_company_names=exclude_company_names,
+        applied_jobs_file=applied_jobs_file,
     )
 
 
@@ -90,6 +93,14 @@ def validate_optional_positive_int(value: Any, field_name: str) -> int | None:
     if not isinstance(value, int) or value < 1:
         raise RuntimeError(f"Config field '{field_name}' must be a positive integer when set.")
     return value
+
+
+def validate_optional_path(value: Any, field_name: str) -> Path:
+    if value is None:
+        return Path("applied_jobs.yaml")
+    if not isinstance(value, str) or not value.strip():
+        raise RuntimeError(f"Config field '{field_name}' must be a file path string when set.")
+    return Path(value.strip())
 
 
 def validate_optional_bool(value: Any, field_name: str) -> bool:

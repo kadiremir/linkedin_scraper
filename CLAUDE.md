@@ -42,7 +42,7 @@ main.py → cli.main() → collect_jobs_for_targets_from_linkedin()
 **Key modules:**
 - `linkedin_jobs/browser.py` — 979 lines, the core scraping engine. Contains all Playwright automation, HTML parsing, and text extraction. LinkedIn's layout changes frequently; there are multiple CSS selector fallbacks and two layout paths (2025 SDUI + legacy).
 - `linkedin_jobs/config.py` — Loads and validates `config.yaml`. The `AppConfig` frozen dataclass holds all settings.
-- `linkedin_jobs/urls.py` — Builds LinkedIn search URLs and normalizes job URLs to a canonical form with a stable `job_id`.
+- `linkedin_jobs/urls.py` — Builds LinkedIn search URLs, normalizes job URLs to a canonical form with a stable `job_id`, and loads `applied_jobs.yaml` via `load_applied_job_ids()`.
 - `linkedin_jobs/models.py` — Three frozen dataclasses: `JobLink`, `JobPosting`, `SearchTarget`.
 - `linkedin_jobs/profiles.py` — Resolves which Chrome profile path to use (dedicated automation profile, Windows default, or custom).
 - `linkedin_jobs/cli.py` — Argument parsing and output formatting.
@@ -62,6 +62,16 @@ posted_within: last_24_hours     # last_24_hours | last_7_days | last_month
 headless: true
 exclude_title_words: [Intern]    # optional; skips jobs whose title contains any of these words (case-insensitive)
 exclude_company_names: [Infosys] # optional; skips jobs whose company name contains any of these strings (case-insensitive)
+applied_jobs_file: applied_jobs.yaml  # optional; defaults to applied_jobs.yaml
+```
+
+`applied_jobs.yaml` (gitignored, created manually) lists jobs already applied to so they are excluded from future runs. The filter fires before any page is visited. Format:
+
+```yaml
+urls_applied:
+  - https://www.linkedin.com/jobs/view/4408404420/
+  # optional comment / note
+  - https://www.linkedin.com/jobs/view/1234567890/
 ```
 
 ## HTML Parsing Notes

@@ -105,6 +105,7 @@ def collect_jobs_for_targets_from_linkedin(
     page_pause_seconds: float,
     exclude_title_words: list[str] | None = None,
     exclude_company_names: list[str] | None = None,
+    applied_job_ids: frozenset[str] = frozenset(),
 ) -> list[tuple[str, list[JobPosting]]]:
     try:
         from playwright.async_api import Error as PlaywrightError
@@ -130,6 +131,7 @@ def collect_jobs_for_targets_from_linkedin(
             page_pause_seconds=page_pause_seconds,
             exclude_title_words=exclude_title_words or [],
             exclude_company_names=exclude_company_names or [],
+            applied_job_ids=applied_job_ids,
             timeout_error_type=PlaywrightTimeoutError,
             playwright_error_type=PlaywrightError,
         )
@@ -151,6 +153,7 @@ async def collect_target_jobs_with_persistent_context(
     exclude_company_names: list[str],
     timeout_error_type,
     playwright_error_type,
+    applied_job_ids: frozenset[str] = frozenset(),
 ) -> list[tuple[str, list[JobPosting]]]:
     launch_args = []
     if chrome_profile_directory:
@@ -210,6 +213,7 @@ async def collect_target_jobs_with_persistent_context(
                     page_pause_seconds=page_pause_seconds,
                     exclude_title_words=exclude_title_words,
                     exclude_company_names=exclude_company_names,
+                    applied_job_ids=applied_job_ids,
                     timeout_error_type=timeout_error_type,
                 )
                 results.append((country, jobs))
@@ -371,7 +375,10 @@ async def scrape_job_details(
     exclude_title_words: list[str],
     exclude_company_names: list[str],
     timeout_error_type,
+    applied_job_ids: frozenset[str] = frozenset(),
 ) -> list[JobPosting]:
+    if applied_job_ids:
+        job_links = [jl for jl in job_links if jl.job_id not in applied_job_ids]
     if not job_links:
         return []
 

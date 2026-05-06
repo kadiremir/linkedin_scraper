@@ -55,6 +55,10 @@ exclude_title_words:
 exclude_company_names:
   - Staffing
   - Recruiting
+
+# Optional. Path to a YAML file listing jobs you have already applied to.
+# Those jobs are excluded from future runs. Defaults to applied_jobs.yaml.
+# applied_jobs_file: applied_jobs.yaml
 ```
 
 The app searches every job title in every country and prints the parsed results at the end of the run.
@@ -98,6 +102,18 @@ Set `headless: true` only after you have already logged in with the same Chrome 
 Set `exclude_title_words` to a list of words to skip jobs whose title contains any of them (case-insensitive substring match). Useful for filtering out seniority levels or roles you are not interested in.
 
 Set `exclude_company_names` to a list of strings to skip jobs from companies whose name contains any of them (case-insensitive substring match). Useful for filtering out staffing agencies or specific employers.
+
+Create `applied_jobs.yaml` in the project root to exclude jobs you have already applied to. Add one URL per entry under `urls_applied:`. Comment lines starting with `#` are ignored and can be used for notes.
+
+```yaml
+urls_applied:
+  - https://www.linkedin.com/jobs/view/4408404420/
+  # Waiting for callback
+  - https://www.linkedin.com/jobs/view/1234567890/
+  # Easy Apply, no response yet
+```
+
+The scraper reads this file on every run and silently skips matching jobs before opening any pages. The file is gitignored. Use `applied_jobs_file` in `config.yaml` to point to a different path.
 
 If Chrome opens the correct profile but the tab stays empty, try:
 

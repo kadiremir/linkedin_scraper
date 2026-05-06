@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 from urllib.parse import parse_qs, urlencode, urljoin, urlparse
 
 
@@ -46,3 +47,29 @@ def normalize_linkedin_job_url(raw_href: str | None) -> tuple[str, str] | None:
 
 def canonical_job_url(job_id: str) -> str:
     return f"{LINKEDIN_BASE_URL}/jobs/view/{job_id}/"
+
+
+def load_applied_job_ids(path: Path) -> frozenset[str]:
+    if not path.exists():
+        return frozenset()
+    text = path.read_text(encoding="utf-8")
+    try:
+        import yaml
+        data = yaml.safe_load(text) or {}
+    except ImportError:
+        raise RuntimeError(
+            f"PyYAML is required to read {path}. Run: pip install -r requirements.txt"
+        )
+    if not isinstance(data, dict):
+        raise RuntimeError(f"{path} must contain a YAML mapping with a 'urls_applied' key.")
+    entries = data.get("urls_applied") or []
+    if not isinstance(entries, list):
+        raise RuntimeError(f"'urls_applied' in {path} must be a list of URLs.")
+    job_ids: set[str] = set()
+    for url in entries:
+        if not url:
+            continue
+        result = normalize_linkedin_job_url(str(url))
+        if result:
+            job_ids.add(result[0])
+    return frozenset(job_ids)

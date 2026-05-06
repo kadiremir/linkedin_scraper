@@ -5,3 +5,4 @@ __pycache__/
 *.py[cod]
 jobs.sqlite3
 *.sqlite3
+applied_jobs.yaml

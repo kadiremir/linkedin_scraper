@@ -5,11 +5,15 @@ from linkedin_jobs.browser import collect_jobs_for_targets_from_linkedin
 from linkedin_jobs.config import AppConfig, load_config, posted_within_seconds
 from linkedin_jobs.models import JobPosting
 from linkedin_jobs.profiles import resolve_browser_profile
+from linkedin_jobs.urls import load_applied_job_ids
 
 
 def main(argv: list[str] | None = None) -> int:
     args = parse_args(argv)
     config = resolve_config(args)
+    applied_job_ids = load_applied_job_ids(config.applied_jobs_file)
+    if applied_job_ids:
+        print(f"Excluding {len(applied_job_ids)} previously applied job(s).")
     browser_profile = resolve_browser_profile(args)
     headless = resolve_headless(args, config)
     if headless and args.pause_on_start:
@@ -27,6 +31,7 @@ def main(argv: list[str] | None = None) -> int:
         page_pause_seconds=args.page_pause_seconds,
         exclude_title_words=config.exclude_title_words,
         exclude_company_names=config.exclude_company_names,
+        applied_job_ids=applied_job_ids,
     )
 
     titles_by_country: dict[str, list[str]] = {}
