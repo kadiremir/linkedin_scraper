@@ -24,3 +24,8 @@ exclude_title_words:
    - Intern
 #   - Lead
 #   - Manager
+
+# Optional. Jobs from companies whose name contains any of these strings (case-insensitive) are skipped.
+exclude_company_names:
+   - Infosys
+#   - Recruiting

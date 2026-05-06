@@ -26,6 +26,7 @@ def main(argv: list[str] | None = None) -> int:
         headless=headless,
         page_pause_seconds=args.page_pause_seconds,
         exclude_title_words=config.exclude_title_words,
+        exclude_company_names=config.exclude_company_names,
     )
 
     total_jobs = sum(len(jobs) for _, jobs in search_results)
